@@ -71,10 +71,12 @@ class Network(IntEnum):
     ArbitrumGorli = 421613
     Sepolia = 11155111
     Aurora = 1313161554
-    Harmony = 1666600000        
+    Harmony = 1666600000
+    Arcadia = 321831
 
 MULTICALL_ADDRESSES: Dict[int,str] = {
     Network.Mainnet: '0xeefBa1e63905eF1D7ACbA5a8513c70307C1cE441',
+    Network.Arcadia: '0xeefBa1e63905eF1D7ACbA5a8513c70307C1cE441',
     Network.Kovan: '0x2cc8688C5f75E365aaEEb4ea8D6a480405A48D2A',
     Network.Rinkeby: '0x42Ad527de7d4e9d9d011aC45B31D8551f8Fe9821',
     Network.Gorli: '0x77dCa2C955b15e9dE4dbBCf1246B4B85b651e50e',
@@ -92,6 +94,7 @@ MULTICALL_ADDRESSES: Dict[int,str] = {
 
 MULTICALL2_ADDRESSES: Dict[int,str] = {
     Network.Mainnet: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
+    Network.Arcadia: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
     Network.Kovan: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
     Network.Rinkeby: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
     Network.Gorli: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
@@ -113,6 +116,7 @@ MULTICALL2_ADDRESSES: Dict[int,str] = {
 # based on https://github.com/mds1/multicall#readme
 MULTICALL3_ADDRESSES: Dict[int,str] = {
     Network.Mainnet: '0xcA11bde05977b3631167028862bE2a173976CA11',
+    Network.Arcadia: '0xcA11bde05977b3631167028862bE2a173976CA11',
     Network.Ropsten: '0xcA11bde05977b3631167028862bE2a173976CA11',
     Network.Rinkeby: '0xcA11bde05977b3631167028862bE2a173976CA11',
     Network.Gorli: '0xcA11bde05977b3631167028862bE2a173976CA11',
