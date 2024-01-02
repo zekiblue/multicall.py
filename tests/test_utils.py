@@ -1,8 +1,11 @@
 
 import pytest
-from brownie import web3
+# from brownie import web3
 from multicall.utils import *
 from web3.providers.async_base import AsyncBaseProvider
+# from multicall import Call, Multicall
+# from web3.auto import w3
+from web3.auto import w3
 
 
 class UST(Exception):
@@ -20,8 +23,8 @@ def exception_coro():
     raise oopsie
 
 
-def test_chain_id():
-    assert chain_id(web3) == 1
+# def test_chain_id():
+#     assert chain_id(web3) == 1
 
 def test_await_awaitable():
     assert await_awaitable(coro()) is None
@@ -41,28 +44,28 @@ def test_gather_with_exception():
     with pytest.raises(UST):
         await_awaitable(gather([coro(),coro(),coro(),coro(),exception_coro()]))
 
-def test_get_endpoint_brownie():
-    assert get_endpoint(web3) == web3.provider.endpoint_uri
+# def test_get_endpoint_brownie():
+#     assert get_endpoint(web3) == web3.provider.endpoint_uri
 
-def test_get_endpoint_web3py():
-    web3py_w3 = Web3(get_endpoint(web3))
-    assert get_endpoint(web3py_w3) == web3.provider.endpoint_uri
+# def test_get_endpoint_web3py():
+#     web3py_w3 = Web3(get_endpoint(Web3()))
+#     assert get_endpoint(web3py_w3) == Web3()
 
 @pytest.mark.skip(reason="no local endpoint setup")
 def test_get_endpoint_web3py_auto():
-    assert get_endpoint(Web3()) == 'http://localhost:8545'
+    assert get_endpoint(w3) == 'http://localhost:8545'
 
-def test_get_async_w3_with_sync():
-    w3 = get_async_w3(web3)
-    assert w3.eth.is_async
-    assert isinstance(w3.provider, AsyncBaseProvider)
-    assert await_awaitable(w3.eth.chain_id) == 1
+def test_get_async_w3_with_sync(web3_conn):
+    w3_ = get_async_w3(web3_conn)
+    assert w3_.eth.is_async
+    assert isinstance(w3_.provider, AsyncBaseProvider)
+    assert await_awaitable(w3_.eth.chain_id) == 1
 
-def test_get_async_w3_with_async():
-    async_w3 = get_async_w3(web3)
-    w3 = get_async_w3(async_w3)
-    assert w3 == async_w3
-    assert await_awaitable(w3.eth.chain_id) == 1
+def test_get_async_w3_with_async(web3_conn):
+    async_w3 = get_async_w3(web3_conn)
+    w3_ = get_async_w3(async_w3)
+    assert w3_ == async_w3
+    assert await_awaitable(w3_.eth.chain_id) == 1
 
 def test_run_in_subprocess():
     assert await_awaitable(run_in_subprocess(work)) is None

@@ -1,4 +1,4 @@
-from eth_abi import encode_abi
+from eth_abi import encode
 from multicall import Signature
 
 args = ((1, 2, 3), '0x' + 'f' * 40, b'data')
@@ -14,10 +14,10 @@ def test_signature_parsing():
 
 def test_signature_encoding():
     sig = Signature('test(uint256[],address,bytes)()')
-    assert sig.encode_data(args) == sig.fourbyte + encode_abi(types, args)
+    assert sig.encode_data(args) == sig.fourbyte + encode(types, args)
 
 
 def test_signature_decoding():
     sig = Signature('test()(uint256[],address,bytes)')
-    data = encode_abi(types, args)
+    data = encode(types, args)
     assert sig.decode_data(data) == args
