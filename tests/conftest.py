@@ -15,5 +15,4 @@ def async_web3_conn():
     return Web3(Web3.AsyncHTTPProvider(f"https://mainnet.infura.io/v3/{os.environ['WEB3_INFURA_PROJECT_ID']}"))
 
 
-
-sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath("."))

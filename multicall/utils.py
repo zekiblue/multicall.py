@@ -9,17 +9,16 @@ from web3 import AsyncHTTPProvider, Web3
 from web3.eth import AsyncEth
 from web3.providers.async_base import AsyncBaseProvider
 
-from multicall.constants import (AIOHTTP_TIMEOUT, NO_STATE_OVERRIDE,
-                                 NUM_PROCESSES)
+from multicall.constants import AIOHTTP_TIMEOUT, NO_STATE_OVERRIDE, NUM_PROCESSES
 
 chainids: Dict[Web3, int] = {}
 
 
 @eth_retry.auto_retry
 def chain_id(w3: Web3) -> int:
-    '''
+    """
     Returns chain id for an instance of Web3. Helps save repeat calls to node.
-    '''
+    """
     try:
         return chainids[w3]
     except KeyError:
@@ -53,7 +52,7 @@ def get_async_w3(w3: Web3) -> Web3:
 
         async_w3s[w3] = w3
         return w3
-    request_kwargs = {'timeout': AIOHTTP_TIMEOUT}
+    request_kwargs = {"timeout": AIOHTTP_TIMEOUT}
     async_w3 = Web3(
         provider=AsyncHTTPProvider(get_endpoint(w3), request_kwargs),
         # In older web3 versions, AsyncHTTPProvider objects come
@@ -78,6 +77,7 @@ def get_event_loop() -> asyncio.BaseEventLoop:
 
 def await_awaitable(awaitable: Awaitable) -> Any:
     return get_event_loop().run_until_complete(awaitable)
+
 
 async def run_in_subprocess(callable: Callable, *args: Any, **kwargs) -> Any:
     if NUM_PROCESSES == 1:
@@ -109,4 +109,4 @@ def state_override_supported(w3: Web3) -> bool:
 
 @lru_cache(maxsize=1)
 def _get_semaphore() -> asyncio.Semaphore:
-    return asyncio.Semaphore()
+    return asyncio.Semaphore(10)
