@@ -79,14 +79,14 @@ class Call:
         success: Optional[bool] = None,
     ) -> Any:
         if success is None:
-            apply_handler = lambda handler, value: handler(value)
+            apply_handler = lambda handler, value: handler(value)  # noqa: E731
         else:
-            apply_handler = lambda handler, value: handler(success, value)
+            apply_handler = lambda handler, value: handler(success, value)  # noqa: E731
 
         if success is None or success:
             try:
                 decoded = signature.decode_data(output)
-            except:
+            except Exception:
                 success, decoded = False, [None] * (1 if not returns else len(returns))  # type: ignore
         else:
             decoded = [None] * (1 if not returns else len(returns))  # type: ignore

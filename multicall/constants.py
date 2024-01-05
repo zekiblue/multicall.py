@@ -1,21 +1,8 @@
-import asyncio
 import os
 from enum import IntEnum
 from typing import Dict
 
 from aiohttp import ClientTimeout
-
-# If brownie is installed and connected, we will use brownie's Web3
-# Otherwise, we will use w3 from web3py.
-try:
-    from brownie import network, web3  # type: ignore
-
-    if network.is_connected():
-        w3 = web3
-    else:
-        from web3.auto import w3
-except ImportError:
-    from web3.auto import w3
 
 GAS_LIMIT: int = int(os.environ.get("GAS_LIMIT", 50_000_000))
 

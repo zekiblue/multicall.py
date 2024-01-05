@@ -113,7 +113,7 @@ def test_multicall_no_success_async(web3_conn):
 
 def test_batcher_batch_calls_even(web3_conn):
     batcher.step = 10_000
-    DUMMY_CALL = Call(CHAI, "totalSupply()(uint)", [[f"totalSupply", None]], _w3=web3_conn)
+    DUMMY_CALL = Call(CHAI, "totalSupply()(uint)", [["totalSupply", None]], _w3=web3_conn)
     calls = [DUMMY_CALL for i in range(30_000)]
     batches = batcher.batch_calls(calls, batcher.step)
     # NOTE batcher.step == 10_000, so with 30_000 calls you should have 3 batches
@@ -126,7 +126,7 @@ def test_batcher_batch_calls_even(web3_conn):
 
 def test_batcher_batch_calls_odd(web3_conn):
     batcher.step = 10_000
-    DUMMY_CALL = Call(CHAI, "totalSupply()(uint)", [[f"totalSupply", None]], _w3=web3_conn)
+    DUMMY_CALL = Call(CHAI, "totalSupply()(uint)", [["totalSupply", None]], _w3=web3_conn)
 
     calls = [DUMMY_CALL for i in range(29_999)]
     batches = batcher.batch_calls(calls, batcher.step)
@@ -138,7 +138,7 @@ def test_batcher_batch_calls_odd(web3_conn):
 
 
 def test_batcher_split_calls_even(web3_conn):
-    DUMMY_CALL = Call(CHAI, "totalSupply()(uint)", [[f"totalSupply", None]], _w3=web3_conn)
+    DUMMY_CALL = Call(CHAI, "totalSupply()(uint)", [["totalSupply", None]], _w3=web3_conn)
     calls = [DUMMY_CALL for i in range(30_000)]
     split = batcher.split_calls(calls, batcher.step)
     assert len(split) == 2
@@ -148,7 +148,7 @@ def test_batcher_split_calls_even(web3_conn):
 
 
 def test_batcher_split_calls_odd(web3_conn):
-    DUMMY_CALL = Call(CHAI, "totalSupply()(uint)", [[f"totalSupply", None]], _w3=web3_conn)
+    DUMMY_CALL = Call(CHAI, "totalSupply()(uint)", [["totalSupply", None]], _w3=web3_conn)
     calls = [DUMMY_CALL for i in range(29_999)]
     split = batcher.split_calls(calls, batcher.step)
     assert len(split) == 2
