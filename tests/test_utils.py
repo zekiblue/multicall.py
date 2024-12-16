@@ -72,7 +72,7 @@ def test_get_endpoint_brownie(web3_conn):
 
 
 def test_get_endpoint_web3py(web3_conn):
-    web3py_w3 = Web3(get_endpoint(web3_conn))
+    web3py_w3 = Web3(Web3.HTTPProvider(get_endpoint(web3_conn)))
     assert get_endpoint(web3py_w3) == web3_conn.provider.endpoint_uri
 
 

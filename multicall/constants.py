@@ -14,7 +14,7 @@ try:
     else:
         from web3.auto import w3  # noqa: F401
 except ImportError:
-    pass
+    from web3.auto import w3  # noqa: F401
 
 GAS_LIMIT: int = int(os.environ.get("GAS_LIMIT", 50_000_000))
 

@@ -51,8 +51,8 @@ def test_multicall(web3_conn):
 def test_multicall_with_origin(web3_conn):
     multi = Multicall(
         [
-            Call(WHOAMI, ["sender()(address)", CHAI, 1], [["sender", None]]),
-            Call(WHOAMI, ["origin()(address)", CHAI, 1], [["origin", None]]),
+            Call(WHOAMI, ["sender()(address)"], [["sender", None]]),
+            Call(WHOAMI, ["origin()(address)"], [["origin", None]]),
         ],
         origin=CHAI,
         _w3=web3_conn,
