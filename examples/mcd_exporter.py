@@ -80,9 +80,9 @@ def from_wei(value, decimals=18):
     return Decimal(value) / 10**decimals
 
 
-from_wad = partial(from_wei, decimals=18)
-from_ray = partial(from_wei, decimals=27)
-from_rad = partial(from_wei, decimals=45)
+from_wad = partial(from_wei, decimals=18)  # noqa: F811
+from_ray = partial(from_wei, decimals=27)  # noqa: F811
+from_rad = partial(from_wei, decimals=45)  # noqa: F811
 
 
 def from_ilk(values):

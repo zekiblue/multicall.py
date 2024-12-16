@@ -56,7 +56,7 @@ class Multicall:
         "chainid",
         "multicall_sig",
         "multicall_address",
-        "origin"
+        "origin",
     )
 
     def __init__(
@@ -76,21 +76,11 @@ class Multicall:
         self.origin = to_checksum_address(origin) if origin else None
         self.chainid = chain_id(self.w3)
         if require_success is True:
-            multicall_map = (
-                MULTICALL3_ADDRESSES
-                if self.chainid in MULTICALL3_ADDRESSES
-                else MULTICALL2_ADDRESSES
-            )
+            multicall_map = MULTICALL3_ADDRESSES if self.chainid in MULTICALL3_ADDRESSES else MULTICALL2_ADDRESSES
             self.multicall_sig = "aggregate((address,bytes)[])(uint256,bytes[])"
         else:
-            multicall_map = (
-                MULTICALL3_ADDRESSES
-                if self.chainid in MULTICALL3_ADDRESSES
-                else MULTICALL2_ADDRESSES
-            )
-            self.multicall_sig = (
-                "tryBlockAndAggregate(bool,(address,bytes)[])(uint256,uint256,(bool,bytes)[])"
-            )
+            multicall_map = MULTICALL3_ADDRESSES if self.chainid in MULTICALL3_ADDRESSES else MULTICALL2_ADDRESSES
+            self.multicall_sig = "tryBlockAndAggregate(bool,(address,bytes)[])(uint256,uint256,(bool,bytes)[])"
         self.multicall_address = multicall_map[self.chainid]
 
     def __call__(self) -> Dict[str, Any]:
@@ -113,9 +103,7 @@ class Multicall:
 
         return {name: result for output in outputs for name, result in output.items()}
 
-    async def fetch_outputs(
-        self, calls: List[Call], ConnErr_retries: int = 0, id: str = ""
-    ) -> List[CallResponse]:
+    async def fetch_outputs(self, calls: List[Call], ConnErr_retries: int = 0, id: str = "") -> List[CallResponse]:
         logger.debug("coroutine %s started", id)
 
         if calls is None:
@@ -131,9 +119,7 @@ class Multicall:
                     self.block_id, _, outputs = await self.aggregate.coroutine(args)
                 outputs = await gather(
                     [
-                        run_in_subprocess(
-                            Call.decode_output, output, call.signature, call.returns, success
-                        )
+                        run_in_subprocess(Call.decode_output, output, call.signature, call.returns, success)
                         for call, (success, output) in zip(calls, outputs)
                     ]
                 )
@@ -247,8 +233,7 @@ def _raise_or_proceed(e: Exception, ct_calls: int, ConnErr_retries: int) -> None
         logger.warning(e)
     elif isinstance(e, requests.ConnectionError):
         if (
-            "('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))"
-            not in str(e)
+            "('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))" not in str(e)
             or ConnErr_retries > 5
         ):
             raise e

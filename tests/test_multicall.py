@@ -1,7 +1,6 @@
 from typing import Any, Tuple
 import pytest
 
-from brownie import web3
 from joblib import Parallel, delayed
 from multicall import Call, Multicall
 from multicall.multicall import batcher
@@ -35,12 +34,13 @@ def unpack_no_success(success: bool, output: Any) -> Tuple[bool, Any]:
     return (success, output)
 
 
-def test_multicall():
+def test_multicall(web3_conn):
     multi = Multicall(
         [
             Call(CHAI, "totalSupply()(uint256)", [["supply", from_wei]]),
             Call(CHAI, ["balanceOf(address)(uint256)", CHAI], [["balance", from_ray]]),
-        ]
+        ],
+        _w3=web3_conn,
     )
     result = multi()
     print(result)
@@ -48,17 +48,22 @@ def test_multicall():
     assert isinstance(result["balance"], float)
 
 
-def test_multicall_with_origin():
-    multi = Multicall([
-        Call(WHOAMI, ['sender()(address)', CHAI, 1], [['sender', None]]),
-        Call(WHOAMI, ['origin()(address)', CHAI, 1], [['origin', None]]),
-    ], origin=CHAI)
+def test_multicall_with_origin(web3_conn):
+    multi = Multicall(
+        [
+            Call(WHOAMI, ["sender()(address)", CHAI, 1], [["sender", None]]),
+            Call(WHOAMI, ["origin()(address)", CHAI, 1], [["origin", None]]),
+        ],
+        origin=CHAI,
+        _w3=web3_conn,
+    )
     result = multi()
     print(result)
-    assert isinstance(result['sender'], str)
-    assert isinstance(result['origin'], str)
+    assert isinstance(result["sender"], str)
+    assert isinstance(result["origin"], str)
 
-def test_multicall_no_success():
+
+def test_multicall_no_success(web3_conn):
     multi = Multicall(
         [
             Call(
@@ -73,6 +78,7 @@ def test_multicall_no_success():
             ),  # lambda success, value: (success, from_ray(value))
         ],
         require_success=False,
+        _w3=web3_conn,
     )
     result = multi()
     print(result)
@@ -80,12 +86,13 @@ def test_multicall_no_success():
     assert isinstance(result["balance"], tuple)
 
 
-def test_multicall_async():
+def test_multicall_async(web3_conn):
     multi = Multicall(
         [
             Call(CHAI, "totalSupply()(uint256)", [["supply", from_wei]]),
             Call(CHAI, ["balanceOf(address)(uint256)", CHAI], [["balance", from_ray]]),
-        ]
+        ],
+        _w3=web3_conn,
     )
     result = await_awaitable(multi)
     print(result)
@@ -93,7 +100,7 @@ def test_multicall_async():
     assert isinstance(result["balance"], float)
 
 
-def test_multicall_no_success_async():
+def test_multicall_no_success_async(web3_conn):
     multi = Multicall(
         [
             Call(
@@ -108,6 +115,7 @@ def test_multicall_no_success_async():
             ),
         ],
         require_success=False,
+        _w3=web3_conn,
     )
     result = await_awaitable(multi)
     print(result)
@@ -115,9 +123,11 @@ def test_multicall_no_success_async():
     assert isinstance(result["balance"], tuple)
 
 
-def test_batcher_batch_calls_even():
+def test_batcher_batch_calls_even(web3_conn):
     batcher.step = 10_000
-    calls = [DUMMY_CALL for i in range(30_000)]
+    DUMMY_CALL_1 = DUMMY_CALL
+    DUMMY_CALL_1.w3 = web3_conn
+    calls = [DUMMY_CALL_1 for i in range(30_000)]
     batches = batcher.batch_calls(calls, batcher.step)
     # NOTE batcher.step == 10_000, so with 30_000 calls you should have 3 batches
     assert len(batches) == 3
@@ -127,9 +137,11 @@ def test_batcher_batch_calls_even():
     assert sum(len(batch) for batch in batches) == len(calls)
 
 
-def test_batcher_batch_calls_odd():
+def test_batcher_batch_calls_odd(web3_conn):
     batcher.step = 10_000
-    calls = [DUMMY_CALL for i in range(29_999)]
+    DUMMY_CALL_1 = DUMMY_CALL
+    DUMMY_CALL_1.w3 = web3_conn
+    calls = [DUMMY_CALL_1 for i in range(29_999)]
     batches = batcher.batch_calls(calls, batcher.step)
     # NOTE batcher.step == 10_000, so with 30_000 calls you should have 3 batches
     assert len(batches) == 3
@@ -138,8 +150,10 @@ def test_batcher_batch_calls_odd():
     assert sum(len(batch) for batch in batches) == len(calls)
 
 
-def test_batcher_split_calls_even():
-    calls = [DUMMY_CALL for i in range(30_000)]
+def test_batcher_split_calls_even(web3_conn):
+    DUMMY_CALL_1 = DUMMY_CALL
+    DUMMY_CALL_1.w3 = web3_conn
+    calls = [DUMMY_CALL_1 for i in range(30_000)]
     split = batcher.split_calls(calls, batcher.step)
     assert len(split) == 2
     assert sum(len(batch) for batch in split) == len(calls)
@@ -147,8 +161,10 @@ def test_batcher_split_calls_even():
     assert len(split[1]) == 15_000
 
 
-def test_batcher_split_calls_odd():
-    calls = [DUMMY_CALL for i in range(29_999)]
+def test_batcher_split_calls_odd(web3_conn):
+    DUMMY_CALL_1 = DUMMY_CALL
+    DUMMY_CALL_1.w3 = web3_conn
+    calls = [DUMMY_CALL_1 for i in range(29_999)]
     split = batcher.split_calls(calls, batcher.step)
     assert len(split) == 2
     assert sum(len(batch) for batch in split) == len(calls)
@@ -157,30 +173,31 @@ def test_batcher_split_calls_odd():
 
 
 @pytest.mark.skip(reason="long running")
-def test_batcher_step_down_and_retry():
+def test_batcher_step_down_and_retry(web3_conn):
     batcher.step = 100_000
     calls = [Call(CHAI, "totalSupply()(uint)", [[f"totalSupply{i}", None]]) for i in range(100_000)]
-    results = Multicall(calls)()
+    results = Multicall(calls, _w3=web3_conn)()
     assert batcher.step < 100_000
     assert len(results) == len(calls)
 
 
 @pytest.mark.skip(reason="upgrade web3")
-def test_multicall_threading():
+def test_multicall_threading(web3_conn):
     calls = [Call(CHAI, "totalSupply()(uint)", [[f"totalSupply{i}", None]]) for i in range(50_000)]
     Parallel(4, "threading")(
-        delayed(Multicall(batch))() for batch in batcher.batch_calls(calls, batcher.step)
+        delayed(Multicall(batch, _w3=web3_conn))() for batch in batcher.batch_calls(calls, batcher.step)
     )
 
 
-@pytest.mark.skip(reason="upgraded web3")
-def test_multicall_multiprocessing():
-    # NOTE can't have middlewares for multiprocessing
-    web3.provider.middlewares = tuple()
-    web3.middleware_onion.clear()
-    # TODO figure out why multiprocessing fails if you don't call request_func here
-    web3.provider.request_func(web3, web3.middleware_onion)
-    calls = [Call(CHAI, "totalSupply()(uint)", [[f"totalSupply{i}", None]]) for i in range(50_000)]
-    Parallel(4, "multiprocessing")(
-        delayed(Multicall(batch, _w3=web3))() for batch in batcher.batch_calls(calls, batcher.step)
-    )
+#
+# @pytest.mark.skip(reason="upgraded web3")
+# def test_multicall_multiprocessing():
+#     # NOTE can't have middlewares for multiprocessing
+#     web3.provider.middlewares = tuple()
+#     web3.middleware_onion.clear()
+#     # TODO figure out why multiprocessing fails if you don't call request_func here
+#     web3.provider.request_func(web3, web3.middleware_onion)
+#     calls = [Call(CHAI, "totalSupply()(uint)", [[f"totalSupply{i}", None]]) for i in range(50_000)]
+#     Parallel(4, "multiprocessing")(
+#         delayed(Multicall(batch, _w3=web3))() for batch in batcher.batch_calls(calls, batcher.step)
+#     )

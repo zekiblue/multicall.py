@@ -1,4 +1,3 @@
-import asyncio
 import os
 from enum import IntEnum
 from typing import Dict
@@ -13,9 +12,9 @@ try:
     if network.is_connected():
         w3 = web3
     else:
-        from web3.auto import w3
+        from web3.auto import w3  # noqa: F401
 except ImportError:
-    from web3.auto import w3
+    pass
 
 GAS_LIMIT: int = int(os.environ.get("GAS_LIMIT", 50_000_000))
 

@@ -167,9 +167,7 @@ def fetch_data():
     data["eth_price"] = data["eth_mat"]["mat"] * data["eth_ilk"]["spot"]
     data["bat_price"] = data["bat_mat"]["mat"] * data["bat_ilk"]["spot"]
     data["sys_locked"] = (
-        data["eth_price"] * data["eth_locked"]
-        + data["bat_price"] * data["bat_locked"]
-        + data["sai_locked"]
+        data["eth_price"] * data["eth_locked"] + data["bat_price"] * data["bat_locked"] + data["sai_locked"]
     )
     data["sys_surplus"] = data["vow_dai"] - data["vow_sin"]
     data["sys_debt"] = data["vow_sin"] - data["sin"] - data["ash"]

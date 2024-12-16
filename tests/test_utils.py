@@ -1,6 +1,17 @@
 import pytest
-from brownie import web3
-from multicall.utils import *
+from multicall.utils import (
+    await_awaitable,
+    chain_id,
+    gather,
+    get_async_w3,
+    get_endpoint,
+    get_event_loop,
+    raise_if_exception,
+    raise_if_exception_in,
+    run_in_subprocess,
+)
+import asyncio
+from web3 import Web3
 from web3.providers.async_base import AsyncBaseProvider
 
 
@@ -23,8 +34,8 @@ def exception_coro():
     raise oopsie
 
 
-def test_chain_id():
-    assert chain_id(web3) == 1
+def test_chain_id(web3_conn):
+    assert chain_id(web3_conn) == 1
 
 
 def test_await_awaitable():
@@ -56,13 +67,13 @@ def test_gather_with_exception():
         await_awaitable(gather([coro(), coro(), coro(), coro(), exception_coro()]))
 
 
-def test_get_endpoint_brownie():
-    assert get_endpoint(web3) == web3.provider.endpoint_uri
+def test_get_endpoint_brownie(web3_conn):
+    assert get_endpoint(web3_conn) == web3_conn.provider.endpoint_uri
 
 
-def test_get_endpoint_web3py():
-    web3py_w3 = Web3(get_endpoint(web3))
-    assert get_endpoint(web3py_w3) == web3.provider.endpoint_uri
+def test_get_endpoint_web3py(web3_conn):
+    web3py_w3 = Web3(get_endpoint(web3_conn))
+    assert get_endpoint(web3py_w3) == web3_conn.provider.endpoint_uri
 
 
 @pytest.mark.skip(reason="no local endpoint setup")
@@ -70,15 +81,15 @@ def test_get_endpoint_web3py_auto():
     assert get_endpoint(Web3()) == "http://localhost:8545"
 
 
-def test_get_async_w3_with_sync():
-    w3 = get_async_w3(web3)
+def test_get_async_w3_with_sync(web3_conn):
+    w3 = get_async_w3(web3_conn)
     assert w3.eth.is_async
     assert isinstance(w3.provider, AsyncBaseProvider)
     assert await_awaitable(w3.eth.chain_id) == 1
 
 
-def test_get_async_w3_with_async():
-    async_w3 = get_async_w3(web3)
+def test_get_async_w3_with_async(web3_conn):
+    async_w3 = get_async_w3(web3_conn)
     w3 = get_async_w3(async_w3)
     assert w3 == async_w3
     assert await_awaitable(w3.eth.chain_id) == 1

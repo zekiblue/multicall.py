@@ -80,9 +80,9 @@ def get_async_w3(w3: Web3) -> Web3:
     # with incompatible synchronous middlewares by default.
     middlewares = []
     if AsyncWeb3:
-        async_w3 = AsyncWeb3(provider=provider, middlewares=middlewares)
+        async_w3 = AsyncWeb3(provider=provider, middleware=middlewares)
     else:
-        async_w3 = Web3(provider=provider, middlewares=middlewares)
+        async_w3 = Web3(provider=provider, middleware=middlewares)
         async_w3.eth = AsyncEth(async_w3)
 
     async_w3s[w3] = async_w3
@@ -107,9 +107,7 @@ def await_awaitable(awaitable: Awaitable) -> Any:
 async def run_in_subprocess(callable: Callable, *args: Any, **kwargs) -> Any:
     if NUM_PROCESSES == 1:
         return callable(*args, **kwargs)
-    return await asyncio.get_event_loop().run_in_executor(
-        process_pool_executor, callable, *args, **kwargs
-    )
+    return await asyncio.get_event_loop().run_in_executor(process_pool_executor, callable, *args, **kwargs)
 
 
 def raise_if_exception(obj: Any) -> None:

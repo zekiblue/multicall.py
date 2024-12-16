@@ -81,16 +81,15 @@ class Call:
         returns: Optional[Iterable[Tuple[str, Callable]]] = None,
         success: Optional[bool] = None,
     ) -> Any:
-
         if success is None:
-            apply_handler = lambda handler, value: handler(value)
+            apply_handler = lambda handler, value: handler(value)  # noqa: E731
         else:
-            apply_handler = lambda handler, value: handler(success, value)
+            apply_handler = lambda handler, value: handler(success, value)  # noqa: E731
 
         if success is None or success:
             try:
                 decoded = signature.decode_data(output)
-            except:
+            except Exception:
                 success, decoded = False, [None] * (1 if not returns else len(returns))  # type: ignore
         else:
             decoded = [None] * (1 if not returns else len(returns))  # type: ignore
@@ -166,21 +165,20 @@ class Call:
 
 
 def prep_args(
-    target: str, 
-    signature: Signature, 
-    args: Optional[Any], 
+    target: str,
+    signature: Signature,
+    args: Optional[Any],
     block_id: Optional[int],
     origin: str,
-    gas_limit: int, 
+    gas_limit: int,
     state_override_code: str,
 ) -> List:
-
     calldata = signature.encode_data(args)
 
     args = [{"to": target, "data": calldata}, block_id]
 
     if origin:
-        args[0]['from'] = origin
+        args[0]["from"] = origin
 
     if gas_limit:
         args[0]["gas"] = gas_limit
